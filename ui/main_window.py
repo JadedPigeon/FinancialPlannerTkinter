@@ -3,32 +3,28 @@ import customtkinter as ctk
 class MainWindow(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
+        self.pack(fill="both", expand=True)
 
-        self.create_widgets()
+        self.navbar = NavBar(self, controller=self)
+        self.navbar.pack(side="left", fill="y")
 
-    def create_widgets(self):
-        # Example layout: header + 3 buttons + area to display forecast
-        header = ctk.CTkLabel(self, text="Financial Planner", font=("Helvetica", 18))
-        header.pack(pady=20)
+        self.action_window = ActionWindow(self, controller=self)
+        self.action_window.pack(side="right", fill="both", expand=True)
 
-        # Buttons
-        add_income_btn = ctk.CTkButton(self, text="Add Income", command=self.add_income)
-        add_expense_btn = ctk.CTkButton(self, text="Add Expense", command=self.add_expense)
-        forecast_btn = ctk.CTkButton(self, text="Forecast Balance", command=self.forecast)
+class NavBar(ctk.CTkFrame):
+    def __init__(self, master, controller):
+        super().__init__(master)
+        self.controller = controller
 
-        add_income_btn.pack(pady=5)
-        add_expense_btn.pack(pady=5)
-        forecast_btn.pack(pady=20)
+        # Example content for NavBar
+        label = ctk.CTkLabel(self, text="Navigation Bar")
+        label.pack(padx=10, pady=10)
 
-        # Output area (you can replace with text box, frame, etc.)
-        self.output_label = ctk.CTkLabel(self, text="Forecast will appear here")
-        self.output_label.pack(pady=10)
+class ActionWindow(ctk.CTkFrame):
+    def __init__(self, master, controller):
+        super().__init__(master)
+        self.controller = controller
 
-    def add_income(self):
-        print("Add income clicked")  # Hook up to a popup or form later
-
-    def add_expense(self):
-        print("Add expense clicked")
-
-    def forecast(self):
-        print("Forecast clicked")
+        # Example content for ActionWindow
+        label = ctk.CTkLabel(self, text="Action Window")
+        label.pack(padx=10, pady=10)
