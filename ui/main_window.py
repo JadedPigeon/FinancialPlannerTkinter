@@ -69,7 +69,7 @@ class MainWindow(ctk.CTkFrame):
 
     def open_date_picker(self):
         target_date_window = ctk.CTkToplevel()
-        target_date_window.geometry("300x300")
+        target_date_window.geometry("300x250")
         target_date_window.title("Select Target Date")
 
         def set_date():
