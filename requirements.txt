@@ -1,3 +1,6 @@
+babel==2.17.0
 customtkinter==5.2.2
 darkdetect==0.8.0
 packaging==25.0
+pip==25.1.1
+tkcalendar==1.6.1
