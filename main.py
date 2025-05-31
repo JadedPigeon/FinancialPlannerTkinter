@@ -1,6 +1,6 @@
 import customtkinter as ctk
-from ui.main_window import NavBar, ActionWindow, MainWindow
-from ui.summary import SummaryWindow
+from ui.main_window import MainWindow
+
 
 def main():
     root = ctk.CTk()
@@ -9,7 +9,7 @@ def main():
 
     app = MainWindow(root)
 
-    app.mainloop()
+    root.mainloop()
 
 if __name__ == "__main__":
     main()
