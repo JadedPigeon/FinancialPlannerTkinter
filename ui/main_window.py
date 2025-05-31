@@ -21,7 +21,7 @@ class NavBar(ctk.CTkFrame):
         label = ctk.CTkLabel(self, text="Navigation Bar")
         label.pack()
 
-        summary_button = ctk.CTkButton(self, text="Summary", command=self.pass)
+        summary_button = ctk.CTkButton(self, text="Summary", command=self.show_summary)
         summary_button.pack(pady=10)
 
 class ActionWindow(ctk.CTkFrame):
