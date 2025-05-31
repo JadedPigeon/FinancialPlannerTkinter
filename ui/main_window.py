@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from ui.summary import SummaryWindow
 
 class MainWindow(ctk.CTkFrame):
     def __init__(self, master):
@@ -18,13 +19,15 @@ class NavBar(ctk.CTkFrame):
 
         # Example content for NavBar
         label = ctk.CTkLabel(self, text="Navigation Bar")
-        label.pack(padx=10, pady=10)
+        label.pack()
+
+        summary_button = ctk.CTkButton(self, text="Summary", command=self.pass)
+        summary_button.pack(pady=10)
 
 class ActionWindow(ctk.CTkFrame):
     def __init__(self, master, controller):
         super().__init__(master)
         self.controller = controller
 
-        # Example content for ActionWindow
-        label = ctk.CTkLabel(self, text="Action Window")
-        label.pack(padx=10, pady=10)
+        summary_frame = SummaryWindow(self, controller)
+        summary_frame.pack(fill="both", expand=True)

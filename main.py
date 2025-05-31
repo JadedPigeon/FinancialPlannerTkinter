@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from ui.main_window import NavBar, ActionWindow, MainWindow
+from ui.summary import SummaryWindow
 
 def main():
     root = ctk.CTk()
