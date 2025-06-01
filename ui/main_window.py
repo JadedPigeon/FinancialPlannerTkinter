@@ -80,6 +80,8 @@ class MainWindow(ctk.CTkFrame):
         self.save_button = ctk.CTkButton(self, text="Save", command=self.save_data)
         self.save_button.pack(pady=1)
 
+        self.load_data()
+
     def update_balance(self):
 
         update_balance_window = ctk.CTkToplevel(self.winfo_toplevel())
@@ -154,15 +156,15 @@ class MainWindow(ctk.CTkFrame):
         entry_amount = ctk.CTkEntry(popup)
         entry_amount.pack(pady=1)
         if existing:
-            entry_amount.insert(0, str(existing[0]))
+            entry_amount.insert(0, str(existing[1]))
 
         label_freq = ctk.CTkLabel(popup, text="Frequency:")
         label_freq.pack(pady=1)
-        freq_var = ctk.StringVar(value=existing[1] if existing else "Monthly")
+        freq_var = ctk.StringVar(value=existing[2] if existing else "Monthly")
         freq_menu = ctk.CTkOptionMenu(popup, variable=freq_var, values=["Weekly", "Biweekly", "Monthly"])
         freq_menu.pack(pady=1)
 
-        start_date_var = ctk.StringVar(value=existing[2] if existing else "Not set")
+        start_date_var = ctk.StringVar(value=existing[3] if existing else "Not set")
         def pick_start_date():
             cal_win = ctk.CTkToplevel(popup)
             cal_win.title("Pick Start Date")
@@ -210,6 +212,7 @@ class MainWindow(ctk.CTkFrame):
                     )
                 )
                 popup.destroy()
+                self.master.focus_force()
             except ValueError:
                 error_label.configure(text="Please enter a valid amount.")
 
@@ -268,3 +271,50 @@ class MainWindow(ctk.CTkFrame):
             print("Data saved to financial_data.json")
         except Exception as e:
             print(f"Error saving data: {e}")
+
+    def load_data(self):
+        try:
+            with open("financial_data.json", "r") as f:
+                data = json.load(f)
+                self.current_balance = data.get("current_balance", 0.00)
+                self.current_balance_label.configure(
+                    text=f"Current Balance: ${self.current_balance:.2f}"
+                )
+                target_date = data.get("target_date", "Not set")
+                self.target_label.configure(text=f"Target Date: {target_date}")
+                
+                self.recurring_income_list = [
+                    (item["name"], item["amount"], item["frequency"], item["start_date"])
+                    for item in data.get("recurring_income", [])
+                ]
+                self.update_recurring_items_display(
+                    self.recurring_income_list,
+                    self.recurring_income_display_frame,
+                    lambda idx: self.on_recurring_item_click(
+                        self.recurring_income_list,
+                        self.recurring_income_display_frame,
+                        "Edit Recurring Income",
+                        idx
+                    )
+                )
+
+                self.recurring_expenses_list = [
+                    (item["name"], item["amount"], item["frequency"], item["start_date"])
+                    for item in data.get("recurring_expenses", [])
+                ]
+                self.update_recurring_items_display(
+                    self.recurring_expenses_list,
+                    self.recurring_expenses_display_frame,
+                    lambda idx: self.on_recurring_item_click(
+                        self.recurring_expenses_list,
+                        self.recurring_expenses_display_frame,
+                        "Edit Recurring Expense",
+                        idx
+                    )
+                )
+        except FileNotFoundError:
+            print("No previous financial data found.")
+        except json.JSONDecodeError:
+            print("Error decoding financial data.")
+        except Exception as e:
+            print(f"Error loading data: {e}")

@@ -1,6 +1,6 @@
 {
-    "current_balance": 0.0,
-    "target_date": "Not set",
+    "current_balance": 2000.0,
+    "target_date": "2026-05-26",
     "recurring_income": [
         {
             "name": "Salary",
