@@ -1,0 +1,20 @@
+{
+    "current_balance": 0.0,
+    "target_date": "Not set",
+    "recurring_income": [
+        {
+            "name": "Salary",
+            "amount": 2000.0,
+            "frequency": "Monthly",
+            "start_date": "2025-06-07"
+        }
+    ],
+    "recurring_expenses": [
+        {
+            "name": "Rent",
+            "amount": 54.0,
+            "frequency": "Biweekly",
+            "start_date": "2025-06-02"
+        }
+    ]
+}

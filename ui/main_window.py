@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from datetime import datetime
 from tkcalendar import Calendar
+import json
 
 class MainWindow(ctk.CTkFrame):
     def __init__(self, master):
@@ -51,7 +52,7 @@ class MainWindow(ctk.CTkFrame):
                 "Edit Recurring Income",
                 idx
             )
-)
+        )
 
         # Recurring expenses
         self.recurring_expenses_label = ctk.CTkLabel(self, text="Recurring Expenses:")
@@ -75,9 +76,11 @@ class MainWindow(ctk.CTkFrame):
             )
         )
 
+        # Save
+        self.save_button = ctk.CTkButton(self, text="Save", command=self.save_data)
+        self.save_button.pack(pady=1)
 
     def update_balance(self):
-        print("update_balance called")
 
         update_balance_window = ctk.CTkToplevel(self.winfo_toplevel())
         update_balance_window.title("Update Current Balance")
@@ -137,7 +140,14 @@ class MainWindow(ctk.CTkFrame):
     def add_or_edit_recurring_item(self, item_list, display_label, title, existing=None, index=None):
         popup = ctk.CTkToplevel(self.winfo_toplevel())
         popup.title(title)
-        popup.geometry("300x250")
+        popup.geometry("300x350")
+
+        label_name = ctk.CTkLabel(popup, text="Recurring Item Name:")
+        label_name.pack(pady=1)
+        entry_name = ctk.CTkEntry(popup)
+        entry_name.pack(pady=1)
+        if existing:
+            entry_name.insert(0, existing[0])
 
         label_amount = ctk.CTkLabel(popup, text="Amount:")
         label_amount.pack(pady=1)
@@ -177,13 +187,14 @@ class MainWindow(ctk.CTkFrame):
 
         def submit():
             try:
+                name = entry_name.get()
                 amount = float(entry_amount.get())
                 freq = freq_var.get()
                 start_date = start_date_var.get()
                 if start_date == "Not set":
                     error_label.configure(text="Please pick a start date.")
                     return
-                item = (amount, freq, start_date)
+                item = (name, amount, freq, start_date)
                 if existing and index is not None:
                     item_list[index] = item
                 else:
@@ -216,10 +227,10 @@ class MainWindow(ctk.CTkFrame):
             label = ctk.CTkLabel(display_frame, text="No items")
             label.pack()
         else:
-            for idx, (amt, freq, date) in enumerate(item_list):
+            for idx, (name, amt, freq, date) in enumerate(item_list):
                 btn = ctk.CTkButton(
                     display_frame,
-                    text=f"${amt:.2f} - {freq} - {date}",
+                    text=f"{name}: ${amt:.2f} - {freq} - {date}",
                     command=lambda i=idx: on_item_click(i),
                     fg_color="transparent",
                     text_color="black",
@@ -237,3 +248,23 @@ class MainWindow(ctk.CTkFrame):
             existing,
             index
         )
+
+    def save_data(self):
+        data = {
+            "current_balance": self.current_balance,
+            "target_date": self.target_label.cget("text").replace("Target Date: ", ""),
+            "recurring_income": [
+                {"name": name, "amount": amt, "frequency": freq, "start_date": date}
+                for name, amt, freq, date in self.recurring_income_list
+            ],
+            "recurring_expenses": [
+                {"name": name, "amount": amt, "frequency": freq, "start_date": date}
+                for name, amt, freq, date in self.recurring_expenses_list
+            ]
+        }
+        try:
+            with open("financial_data.json", "w") as f:
+                json.dump(data, f, indent=4)
+            print("Data saved to financial_data.json")
+        except Exception as e:
+            print(f"Error saving data: {e}")
