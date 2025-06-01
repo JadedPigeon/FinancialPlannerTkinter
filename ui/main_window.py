@@ -31,6 +31,29 @@ class MainWindow(ctk.CTkFrame):
         self.target_label = ctk.CTkLabel(self, text="Target Date: Not set")
         self.target_label.pack(pady=1)
 
+        # Recurring income
+        self.recurring_income_label = ctk.CTkLabel(self, text="Recurring Income:")
+        self.recurring_income_label.pack(pady=1)
+
+        self.add_income_button = ctk.CTkButton(self, text="Add Recurring Income", command=self.add_recurring_income)
+        self.add_income_button.pack(pady=1)
+
+        self.recurring_income_list = []
+        self.recurring_income_display = ctk.CTkLabel(self, text="")
+        self.recurring_income_display.pack(pady=1)
+
+        # Recurring expenses
+        self.recurring_expenses_label = ctk.CTkLabel(self, text="Recurring Expenses:")
+        self.recurring_expenses_label.pack(pady=1)
+
+        self.add_expense_button = ctk.CTkButton(self, text="Add Recurring Expense", command=self.add_recurring_expense)
+        self.add_expense_button.pack(pady=1)
+
+        self.recurring_expenses_list = []
+        self.recurring_expenses_display = ctk.CTkLabel(self, text="")
+        self.recurring_expenses_display.pack(pady=1)
+
+
     def update_balance(self):
         print("update_balance called")
 
@@ -73,6 +96,9 @@ class MainWindow(ctk.CTkFrame):
         target_date_window.title("Select Target Date")
 
         def set_date():
+            if cal.get_date() <  self.current_date:
+                print("Selected date is in the past. Please select a future date.")
+                return
             selected_date = cal.get_date()
             self.target_label.configure(text=f"Target Date: {selected_date}")
             target_date_window.destroy()
@@ -86,3 +112,146 @@ class MainWindow(ctk.CTkFrame):
         target_date_window.update()
         target_date_window.grab_set()
 
+    def add_recurring_income(self):
+        popup = ctk.CTkToplevel(self.winfo_toplevel())
+        popup.title("Add Recurring Income")
+        popup.geometry("300x250")
+
+        label_amount = ctk.CTkLabel(popup, text="Amount:")
+        label_amount.pack(pady=1)
+        entry_amount = ctk.CTkEntry(popup)
+        entry_amount.pack(pady=1)
+
+        label_freq = ctk.CTkLabel(popup, text="Frequency:")
+        label_freq.pack(pady=1)
+        freq_var = ctk.StringVar(value="Monthly")
+        freq_menu = ctk.CTkOptionMenu(popup, variable=freq_var, values=["Weekly", "Biweekly", "Monthly"])
+        freq_menu.pack(pady=1)
+
+        start_date_var = ctk.StringVar(value="Not set")
+        def pick_start_date():
+            cal_win = ctk.CTkToplevel(popup)
+            cal_win.title("Pick Start Date")
+            cal_win.geometry("300x250")
+            cal = Calendar(cal_win, selectmode='day', date_pattern='yyyy-mm-dd')
+            cal.pack(pady=1)
+            def set_date():
+                start_date_var.set(cal.get_date())
+                start_date_label.configure(text=f"Start Date: {start_date_var.get()}")
+                cal_win.destroy()
+            ctk.CTkButton(cal_win, text="Set Date", command=set_date).pack(pady=1)
+            cal_win.update()
+            cal_win.grab_set()
+
+        pick_date_btn = ctk.CTkButton(popup, text="Pick Start Date", command=pick_start_date)
+        pick_date_btn.pack(pady=1)
+        start_date_label = ctk.CTkLabel(popup, text="Start Date: Not set")
+        start_date_label.pack(pady=1)
+
+        def submit():
+                try:
+                    amount = float(entry_amount.get())
+                    freq = freq_var.get()
+                    start_date = start_date_var.get()
+                    if start_date == "Not set":
+                        error_label.configure(text="Please pick a start date.")
+                        return
+                    self.recurring_income_list.append((amount, freq, start_date))
+                    self.update_recurring_income_display()
+                    popup.destroy()
+                except ValueError:
+                    error_label.configure(text="Please enter a valid amount.")
+
+
+        submit_btn = ctk.CTkButton(popup, text="Add", command=submit)
+        submit_btn.pack(pady=1)
+
+        error_label = ctk.CTkLabel(popup, text="", text_color="red")
+        error_label.pack(pady=1)
+
+        popup.update()
+        popup.grab_set()
+
+    def update_recurring_income_display(self):
+        if not self.recurring_income_list:
+            self.recurring_income_display.configure(text="")
+        else:
+            text = "\n".join([f"${amt:.2f} - {freq} - {date}" for amt, freq, date in self.recurring_income_list])
+            self.recurring_income_display.configure(text=text)
+
+    def add_recurring_expense(self):
+        popup = ctk.CTkToplevel(self.winfo_toplevel())
+        popup.title("Add Recurring Expense")
+        popup.geometry("300x250")
+
+        label_amount = ctk.CTkLabel(popup, text="Amount:")
+        label_amount.pack(pady=1)
+        entry_amount = ctk.CTkEntry(popup)
+        entry_amount.pack(pady=1)
+
+        label_freq = ctk.CTkLabel(popup, text="Frequency:")
+        label_freq.pack(pady=1)
+        freq_var = ctk.StringVar(value="Monthly")
+        freq_menu = ctk.CTkOptionMenu(popup, variable=freq_var, values=["Weekly", "Biweekly", "Monthly"])
+        freq_menu.pack(pady=1)
+
+        start_date_var = ctk.StringVar(value="Not set")
+        def pick_start_date():
+            cal_win = ctk.CTkToplevel(popup)
+            cal_win.title("Pick Start Date")
+            cal_win.geometry("300x250")
+            cal = Calendar(cal_win, selectmode='day', date_pattern='yyyy-mm-dd')
+            cal.pack(pady=1)
+            def set_date():
+                start_date_var.set(cal.get_date())
+                start_date_label.configure(text=f"Start Date: {start_date_var.get()}")
+                cal_win.destroy()
+            ctk.CTkButton(cal_win, text="Set Date", command=set_date).pack(pady=1)
+            cal_win.update()
+            cal_win.grab_set()
+
+        pick_date_btn = ctk.CTkButton(popup, text="Pick Start Date", command=pick_start_date)
+        pick_date_btn.pack(pady=1)
+        start_date_label = ctk.CTkLabel(popup, text="Start Date: Not set")
+        start_date_label.pack(pady=1)
+
+        def submit():
+                try:
+                    amount = float(entry_amount.get())
+                    freq = freq_var.get()
+                    start_date = start_date_var.get()
+                    if start_date == "Not set":
+                        error_label.configure(text="Please pick a start date.")
+                        return
+                    self.recurring_expenses_list.append((amount, freq, start_date))
+                    self.update_recurring_expenses_display()
+                    popup.destroy()
+                except ValueError:
+                    error_label.configure(text="Please enter a valid amount.")
+
+
+        submit_btn = ctk.CTkButton(popup, text="Add", command=submit)
+        submit_btn.pack(pady=1)
+
+        error_label = ctk.CTkLabel(popup, text="", text_color="red")
+        error_label.pack(pady=5)
+
+        def submit():
+            try:
+                amount = float(entry_amount.get())
+                freq = freq_var.get()
+                self.recurring_expenses_list.append((amount, freq))
+                self.update_recurring_expenses_display()
+                popup.destroy()
+            except ValueError:
+                error_label.configure(text="Please enter a valid amount.")
+
+        popup.update()
+        popup.grab_set()
+
+    def update_recurring_expenses_display(self):
+        if not self.recurring_expenses_list:
+            self.recurring_expenses_display.configure(text="")
+        else:
+            text = "\n".join([f"${amt:.2f} - {freq} - {date}" for amt, freq, date in self.recurring_expenses_list])
+            self.recurring_expenses_display.configure(text=text)
