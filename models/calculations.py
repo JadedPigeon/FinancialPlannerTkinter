@@ -1,5 +1,6 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 # Constants
 current_balance = 0.0
@@ -37,33 +38,56 @@ def set_constants():
     print(f"Recurring Expenses: {recurring_expenses_list}")
 
 def calculate_future_balance():
-    global current_balance
-    for income in recurring_income_list:
-        number_triggers = 0
-        if target_date > current_date:
-            start_date = datetime.strptime(income[3], "%Y-%m-%d")
-            end_date = datetime.strptime(target_date, "%Y-%m-%d")
-            if income[2] == "monthly":
-                number_triggers = (end_date.year - start_date.year) * 12 + end_date.month - start_date.month
-            elif income[2] == "weekly":
-                number_triggers = (end_date - start_date).days // 7
-            elif income[2] == "daily":
-                number_triggers = (end_date - start_date).days
-            
-            current_balance += income[1] * number_triggers
+    balance = current_balance
+    current_datetime = datetime.strptime(current_date, "%Y-%m-%d")
+    target_datetime = datetime.strptime(target_date, "%Y-%m-%d")
 
+    # Income
+    for income in recurring_income_list:
+        startdatetime = datetime.strptime(income[3], "%Y-%m-%d")
+        frequency = income[2]
+        while startdatetime <= current_datetime:
+            if frequency == "weekly":
+                startdatetime += timedelta(weeks=1)
+            elif frequency == "biweekly":
+                startdatetime += timedelta(weeks=2)
+            elif frequency == "monthly":    
+                startdatetime += relativedelta(months=1)
+        triggers = 0
+        if startdatetime < target_datetime:
+            while startdatetime <= target_datetime:
+                triggers += 1
+                if frequency == "weekly":
+                    startdatetime += timedelta(weeks=1)
+                elif frequency == "biweekly":
+                    startdatetime += timedelta(weeks=2)
+                elif frequency == "monthly":    
+                    startdatetime += relativedelta(months=1)
+        balance += income[1] * triggers
+
+    # Expenses
     for expense in recurring_expenses_list:
-        number_triggers = 0
-        if target_date > current_date:
-            start_date = datetime.strptime(expense[3], "%Y-%m-%d")
-            end_date = datetime.strptime(target_date, "%Y-%m-%d")
-            if expense[2] == "monthly":
-                number_triggers = (end_date.year - start_date.year) * 12 + end_date.month - start_date.month
-            elif expense[2] == "weekly":
-                number_triggers = (end_date - start_date).days // 7
-            elif expense[2] == "daily":
-                number_triggers = (end_date - start_date).days
-            
-            current_balance -= expense[1] * number_triggers
-    return current_balance
+        startdatetime = datetime.strptime(expense[3], "%Y-%m-%d")
+        frequency = expense[2]
+        while startdatetime <= current_datetime:
+            if frequency == "weekly":
+                startdatetime += timedelta(weeks=1)
+            elif frequency == "biweekly":
+                startdatetime += timedelta(weeks=2)
+            elif frequency == "monthly":    
+                startdatetime += relativedelta(months=1)
+        triggers = 0
+        if startdatetime < target_datetime:
+            while startdatetime <= target_datetime:
+                triggers += 1
+                if frequency == "weekly":
+                    startdatetime += timedelta(weeks=1)
+                elif frequency == "biweekly":
+                    startdatetime += timedelta(weeks=2)
+                elif frequency == "monthly":    
+                    startdatetime += relativedelta(months=1)
+        balance -= expense[1] * triggers
+    return balance
+    
+        
 
