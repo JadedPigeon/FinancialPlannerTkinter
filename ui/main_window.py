@@ -329,8 +329,9 @@ class MainWindow(ctk.CTkFrame):
 
     def calculate_balance(self):
         set_constants()
-        future_balance = calculate_future_balance()
+        future_balance = calculate_future_balance() - 2341.02 # Temp fix due to late payment
         self.future_balance_label.configure(
             text=f"Future Balance: ${future_balance:.2f}"
         )
         
+
