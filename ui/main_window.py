@@ -2,6 +2,7 @@ import customtkinter as ctk
 from datetime import datetime
 from tkcalendar import Calendar
 import json
+from models.calculations import set_constants, calculate_future_balance
 
 class MainWindow(ctk.CTkFrame):
     def __init__(self, master):
@@ -81,6 +82,13 @@ class MainWindow(ctk.CTkFrame):
         self.save_button.pack(pady=1)
 
         self.load_data()
+
+        # Calculate future balance
+        self.calculate_future_balance_button = ctk.CTkButton(self, text="Calculate Future Balance", command=self.calculate_balance)
+        self.calculate_future_balance_button.pack(pady=1)
+
+        self.future_balance_label = ctk.CTkLabel(self, text="Future Balance: Not calculated")
+        self.future_balance_label.pack(pady=1)
 
     def update_balance(self):
 
@@ -266,7 +274,7 @@ class MainWindow(ctk.CTkFrame):
             ]
         }
         try:
-            with open("financial_data.json", "w") as f:
+            with open("data/financial_data.json", "w") as f:
                 json.dump(data, f, indent=4)
             print("Data saved to financial_data.json")
         except Exception as e:
@@ -274,7 +282,7 @@ class MainWindow(ctk.CTkFrame):
 
     def load_data(self):
         try:
-            with open("financial_data.json", "r") as f:
+            with open("data/financial_data.json", "r") as f:
                 data = json.load(f)
                 self.current_balance = data.get("current_balance", 0.00)
                 self.current_balance_label.configure(
@@ -318,3 +326,11 @@ class MainWindow(ctk.CTkFrame):
             print("Error decoding financial data.")
         except Exception as e:
             print(f"Error loading data: {e}")
+
+    def calculate_balance(self):
+        set_constants()
+        future_balance = calculate_future_balance()
+        self.future_balance_label.configure(
+            text=f"Future Balance: ${future_balance:.2f}"
+        )
+        
